@@ -31,7 +31,7 @@ local IS_CLEAN_QUEUE = false
 
 
 function chatMessage(text)
-	return sampAddChatMessage("[Police Dispatch v"..thisScript().version.."]: {ffffff}"..u8:decode(text), 0xFF3523)
+	return sampAddChatMessage("[Police Dispatch] {ffffff}"..u8:decode(text), 0xFF3523)
 end
 
 local v = getMoonloaderVersion()
@@ -148,11 +148,13 @@ function main()
 	checkUpdates()
 	sampRegisterChatCommand('pdradio', mainMenu)
 
+	local fistMessage
 	if INI.INI.state then
-		chatMessage("Загружен. Управление скриптом: {32B4FF}/pdradio{FFFFFF}. Автор: {32B4FF}vk.com/donaks{FFFFFF}.")
+		firstMessage = "Загружен. Управление скриптом: {32B4FF}/pdradio{FFFFFF}. Автор: {32B4FF}vk.com/donaks{FFFFFF}."
 	else
-		chatMessage("Отключен! Управление скриптом: {32B4FF}/pdradio{FFFFFF}. Автор: {32B4FF}vk.com/donaks{FFFFFF}.")
+		firstMessage = "Отключен! Управление скриптом: {32B4FF}/pdradio{FFFFFF}. Автор: {32B4FF}vk.com/donaks{FFFFFF}."
 	end
+	sampAddChatMessage("[Police Dispatch "..thisScript().version.."] {ffffff}"..u8:decode(firstMessage), 0xFF3523)
 
 	local radioVol = memory.read(0xBA6798, 1)
 	if INI.INI.state and radioVol == 0 then
