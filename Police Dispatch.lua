@@ -1411,7 +1411,7 @@ function mainMenu()
 	)
 	sampShowDialog(
 		20000,
-		u8:decode("Настройки - Police Dispatch v")..thisScript().version.." | "..CFG.name,
+		u8:decode("Настройки - Police Dispatch").." | "..CFG.name,
 		u8:decode(text),
 		BTN1,
 		BTN2,
