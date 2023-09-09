@@ -1,5 +1,5 @@
 -- encoding: cyrillic (windows 1251)
-script_name('PD Radio')
+script_name('Police Dispatch')
 script_author('donaks')
 script_url("github.com/don-aks/PoliceDispatchLua/")
 script_version('2.1.1-patch')
@@ -31,7 +31,7 @@ local IS_CLEAN_QUEUE = false
 
 
 function chatMessage(text)
-	return sampAddChatMessage("[PD Radio v"..thisScript().version.."]: {ffffff}"..u8:decode(text), 0xFF3523)
+	return sampAddChatMessage("[Police Dispatch v"..thisScript().version.."]: {ffffff}"..u8:decode(text), 0xFF3523)
 end
 
 local v = getMoonloaderVersion()
@@ -1409,7 +1409,7 @@ function mainMenu()
 	)
 	sampShowDialog(
 		20000,
-		u8:decode("Настройки - PD Radio v")..thisScript().version.." | "..CFG.name,
+		u8:decode("Настройки - Police Dispatch v")..thisScript().version.." | "..CFG.name,
 		u8:decode(text),
 		BTN1,
 		BTN2,
