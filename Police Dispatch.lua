@@ -423,6 +423,12 @@ function getEventAndPattern(str, color)
 		end
 	end
 
+	-- Убираем последние 2 числа (прозрачность) для сравнения
+	if color > 0xFFFFFF then
+		local hex_color = string.format("%x", color)
+		color = tonumber(hex_color:sub(1, 7))
+	end
+
 	for _, key in ipairs({'call', 'find', 'radio'}) do
 		if CFG[key] then
 			local patterns = CFG[key].pattern
@@ -433,14 +439,25 @@ function getEventAndPattern(str, color)
 
 			local isColor = true
 			for _, col in pairs(colors) do
-				if col ~= tonumber(color) then
-					isColor = false
-				else
+				if col and not tonumber(col) then
+					col = col:gsub("#", "")
+					col = tonumber("0x"..col)
+				end
+
+				-- Аналогично
+				if col > 0xFFFFFF then
+					local hex_col = string.format("%x", col)
+					col = tonumber(hex_col:sub(1, 7))
+				end
+
+				if col == tonumber(color) or (col == 0xFFFFFF and color == -1) then
 					isColor = true
 					break
+				else
+					isColor = false
 				end
 			end
-			
+
 			if isColor then
 				for _, patt in ipairs(patterns) do
 					if not CFG[key].useRegexInPattern then
@@ -481,11 +498,22 @@ function getUserPatternAndId(str, color)
 
 			local isColor = true
 			for _, col in pairs(colors) do
-				if col ~= tonumber(color) then
-					isColor = false
-				else
+				if col and not tonumber(col) then
+					col = col:gsub("#", "")
+					col = tonumber("0x"..col)
+				end
+
+				-- Убираем последние 2 числа (прозрачность) для сравнения
+				if col > 0xFFFFFF then
+					local hex_col = string.format("%x", col)
+					col = tonumber(hex_col:sub(1, 7))
+				end
+
+				if col == tonumber(color) or (col == 0xFFFFFF and color == -1) then
 					isColor = true
 					break
+				else
+					isColor = false
 				end
 			end
 
