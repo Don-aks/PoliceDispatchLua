@@ -963,6 +963,7 @@ function playSounds(array, volume, isPlayRadioOn)
 			sound = loadAudioStream(sound)
 		end
 		if sound then
+			while isPauseMenuActive() do wait(0) end
 			wait(play(sound, volume))
 		end
 	end
