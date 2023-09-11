@@ -1,5 +1,5 @@
 *
+config/PoliceDispatch/config.ini
 !Police Dispatch.lua
 !lib/samp
-!config/PoliceDispatch
 !resource/PoliceDispatchAudio
