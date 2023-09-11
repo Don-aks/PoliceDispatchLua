@@ -430,9 +430,9 @@ function getEventAndPattern(str, color)
 	end
 
 	-- Убираем последние 2 числа (прозрачность) для сравнения
-	if color > 0xFFFFFF then
-		local hex_color = string.format("%x", color)
-		color = tonumber(hex_color:sub(1, 7))
+	if color > 0xFFFFFF or color < -0xFFFFFF then
+		local hex_color = string.format("%x", color):sub(-8)
+		color = tonumber("0x"..hex_color:sub(1, 6))
 	end
 
 	for _, key in ipairs({'call', 'find', 'radio'}) do
@@ -445,18 +445,18 @@ function getEventAndPattern(str, color)
 
 			local isColor = true
 			for _, col in pairs(colors) do
+				-- Если HEX без "0x" вначале
 				if col and not tonumber(col) then
-					col = col:gsub("#", "")
-					col = tonumber("0x"..col)
+					col = "0x"..col:gsub("#", "")
 				end
 
-				-- Аналогично
-				if col > 0xFFFFFF then
-					local hex_col = string.format("%x", col)
-					col = tonumber(hex_col:sub(1, 7))
+				-- Убираем прозрачность
+				if tonumber(col) > 0xFFFFFF then
+					local hex_col = string.format("%x", col):sub(-8)
+					col = tonumber("0x"..hex_col:sub(1, 6))
 				end
 
-				if col == tonumber(color) or (col == 0xFFFFFF and color == -1) then
+				if tonumber(col) == color or (col == 0xFFFFFF and color == -1) then
 					isColor = true
 					break
 				else
@@ -504,18 +504,18 @@ function getUserPatternAndId(str, color)
 
 			local isColor = true
 			for _, col in pairs(colors) do
+				-- Если HEX без "0x" вначале
 				if col and not tonumber(col) then
-					col = col:gsub("#", "")
-					col = tonumber("0x"..col)
+					col = "0x"..col:gsub("#", "")
 				end
 
 				-- Убираем последние 2 числа (прозрачность) для сравнения
-				if col > 0xFFFFFF then
-					local hex_col = string.format("%x", col)
-					col = tonumber(hex_col:sub(1, 7))
+				if tonumber(col) > 0xFFFFFF then
+					local hex_col = string.format("%x", col):sub(-8)
+					col = tonumber("0x"..hex_col:sub(1, 6))
 				end
 
-				if col == tonumber(color) or (col == 0xFFFFFF and color == -1) then
+				if tonumber(col) == color or (col == 0xFFFFFF and color == -1) then
 					isColor = true
 					break
 				else
