@@ -1,4 +1,3 @@
--- encoding: cyrillic (windows 1251)
 script_name('Police Dispatch')
 script_author('donaks')
 script_url("github.com/don-aks/PoliceDispatchLua/")
@@ -13,11 +12,6 @@ local memory = require 'memory'
 local encoding = require 'encoding'
 encoding.default = 'CP1251'
 u8 = encoding.UTF8
-
--- Фикс для 027
-package.path = package.path..";"..getWorkingDirectory().."\\?.lua"
-
-require 'config.PoliceDispatch.config'
 
 local DISP_IS_SPEAK = false
 local VARS = {}
@@ -71,7 +65,7 @@ function main()
 		f:write(f_text)
 		f:close()
 
-		print("Текст .json файла, который читал скрипт находится в moonloader/config/PoliceDispatch/json_err.log")
+		print(u8:decode("Текст .json файла, который читал скрипт находится в moonloader/config/PoliceDispatch/json_err.log"))
 		chatMessage("Не удалось считать .json файл! Подробности в moonloader.log.")
 
 		decodeJson(f_text)
@@ -85,7 +79,7 @@ function main()
 		f:write(f_text)
 		f:close()
 
-		print("Текст .json файла, который читал скрипт находится в moonloader/config/PoliceDispatch/json_err.log")
+		print(u8:decode("Текст .json файла, который читал скрипт находится в moonloader/config/PoliceDispatch/json_err.log"))
 		chatMessage("Не удалось считать .json файл! Подробности в moonloader.log.")
 		thisScript():unload()
 		return
@@ -113,7 +107,7 @@ function main()
 	end
 
 	if not isFindServer then
-		print("Данного сервера не найдено в конфиге. Завершаю работу скрипта.")
+		print(u8:decode("Данного сервера не найдено в конфиге. Завершаю работу скрипта."))
 		thisScript():unload()
 		return
 	end
@@ -222,7 +216,7 @@ function handleEvent(str, color)
 			if markerId then
 				vars.area = getMarkerArea(markerId)
 				if not vars.area then
-					print("Иконка на карте с id "..markerId.." в эвенте find не найдена.")
+					print(u8:decode("Иконка на карте с id "..markerId.." в эвенте find не найдена."))
 					return false
 				end
 			elseif type(CFG.find.pattern) == 'table' and #CFG.find.pattern > 1 then
@@ -230,8 +224,8 @@ function handleEvent(str, color)
 				VARS['find'] = vars
 				return true
 			else
-				print("Ошибка! Перменная @area не указана в эвенте find!")
-				print("Укажите markerId или @area в сообщении и перезагрузите скрипт!")
+				print(u8:decode("Ошибка! Перменная @area не указана в эвенте find!"))
+				print(u8:decode("Укажите markerId или @area в сообщении и перезагрузите скрипт!"))
 				return false
 			end
 		end
@@ -259,7 +253,7 @@ function handleEvent(str, color)
 				VARS['call'] = vars
 				return true
 			else
-				print("Ошибка! Переменная @area или @text не указана в эвенте call!")
+				print(u8:decode("Ошибка! Переменная @area или @text не указана в эвенте call!"))
 				return false
 			end
 		end
@@ -352,7 +346,7 @@ function handleEvent(str, color)
 			lua_thread.create(playSounds, arrSounds, 'userVolume', CFG.user[idUserEvent].isPlayRadioOn)
 			return
 		else
-			print('Произошла ошибка в массиве "sounds" в пользовательском эвенте '..CFG.user[idUserEvent].name..', либо он не определён.!')
+			print(u8:decode('Произошла ошибка в массиве "sounds" в пользовательском эвенте '..CFG.user[idUserEvent].name..', либо он не определён.!'))
 			return false
 		end
 	end
@@ -391,7 +385,7 @@ function getVariablesFromMessage(message, pattern)
 		varsAndValues[var] = message:match(patternWithoutVar)
 
 		if not varsAndValues[var] then
-			print("Warning: Не найдена переменная @"..var.." в строке \""..message.."\"!")
+			print(u8:decode("Warning: Не найдена переменная @"..var.." в строке \""..message.."\"!"))
 		end
 	end
 
@@ -555,8 +549,8 @@ function parceSounds(idUserEvent, vars)
 	for i, sound in ipairs(CFGuser.sounds) do
 
 		if type(sound) ~= 'string' then
-			print("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!")
-			print("Пользовательские звуки должны быть между кавычками!")
+			print(u8:decode("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
+			print(u8:decode("Пользовательские звуки должны быть между кавычками!"))
 			return false
 
 		-- DISP.key1.key2
@@ -574,16 +568,16 @@ function parceSounds(idUserEvent, vars)
 				end
 
 				if not newSound then
-					print("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!")
-					print("Звук не найден! Убедитесь что вы все верно написали.")
-					print("Сравните свои ключи с ключами в переменной DISPATCH_SOUNDS в файле config.lua.")
-					print("Регистр символов имеет значение!")
+					print(u8:decode("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
+					print(u8:decode("Звук не найден! Убедитесь что вы все верно написали."))
+					print(u8:decode("Сравните свои ключи с ключами в переменной DISPATCH_SOUNDS в файле config.lua."))
+					print(u8:decode("Регистр символов имеет значение!"))
 					return false
 				end
 				sound = newSound
 			else
-				print("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!")
-				print("Указывать звук нужно: DISP.key1.key2. Пример: DISP.words.headTo10.")
+				print(u8:decode("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
+				print(u8:decode("Указывать звук нужно: DISP.key1.key2. Пример: DISP.words.headTo10."))
 				return false
 			end
 
@@ -591,9 +585,9 @@ function parceSounds(idUserEvent, vars)
 		elseif sound:find("^@") then
 			local varname = sound:match("@([%a_]+)")
 			if not varname then
-				print("Некорректная переменная в звуке "..tostring(sound).." (№"..i..")"..
-					" в user эвенте '"..CFGuser.name.."'!")
-				print("Переменные пишутся только латиницей или нижним подчеркиванием!")
+				print(u8:decode("Некорректная переменная в звуке "..tostring(sound).." (№"..i..")"..
+					" в user эвенте '"..CFGuser.name.."'!"))
+				print(u8:decode("Переменные пишутся только латиницей или нижним подчеркиванием!"))
 				return false
 			end
 
@@ -606,15 +600,15 @@ function parceSounds(idUserEvent, vars)
 					local markerId = CFGuser.markerId
 					local area = getMarkerArea(markerId)
 					if not area then
-						print("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!")
-						print("Иконка на карте с id "..markerId.." в эвенте user не найдена.")
+						print(u8:decode("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
+						print(u8:decode("Иконка на карте с id "..markerId.." в эвенте user не найдена."))
 						return false
 					end
 
 					local newSound = getAreaSoundPatch(area)
 					if not newSound then
-						print("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!")
-						print("@area не найдено.")
+						print(u8:decode("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
+						print(u8:decode("@area не найдено."))
 						return false
 					end
 					sound = newSound
@@ -629,14 +623,14 @@ function parceSounds(idUserEvent, vars)
 							end
 							sound = getVehSound(vars.vehid)
 						else
-							print("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!")
-							print("Переменной @vehname или @vehid нет в строке!")
-							print("И игрок, указанный в переменных @id или @nick вне зоне стрима!")
+							print(u8:decode("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
+							print(u8:decode("Переменной @vehname или @vehid нет в строке!"))
+							print(u8:decode("И игрок, указанный в переменных @id или @nick вне зоне стрима!"))
 							return false
 						end
 					else
-						print("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!")
-						print("Переменной @vehname или @vehid нет в строке!")
+						print(u8:decode("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
+						print(u8:decode("Переменной @vehname или @vehid нет в строке!"))
 						return false
 					end
 				elseif varname == 'suspectveh' then
@@ -664,7 +658,7 @@ function parceSounds(idUserEvent, vars)
 							end
 
 							if not playerInStream then
-								print("Warning @suspectveh: Игрок вне зоне стрима в user эвенте '"..CFGuser.name.."'!")
+								print(u8:decode("Warning @suspectveh: Игрок вне зоне стрима в user эвенте '"..CFGuser.name.."'!"))
 								sound = nil
 							else
 								table.insert(arrSounds, DISPATCH_SOUNDS.suspect.suspect1)
@@ -672,16 +666,16 @@ function parceSounds(idUserEvent, vars)
 							end
 						end
 					else
-						print("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!")
-						print("Переменной @vehname или @vehid нет в строке!")
+						print(u8:decode("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
+						print(u8:decode("Переменной @vehname или @vehid нет в строке!"))
 						return false
 					end
 				elseif varname == "cityplayer" then
 					local city = getPlayerCity(PLAYER_PED)
 					if not city then
 						local x, y, z = getCharCoordinates(PLAYER_PED)
-						print("Ошибка! Не удалось определить город игрока.")
-						print("Координаты: x = "..x..", y = "..y..", z = "..z)
+						print(u8:decode("Ошибка! Не удалось определить город игрока."))
+						print(u8:decode("Координаты: x = "..x..", y = "..y..", z = "..z))
 						return false
 					end
 					sound = getAreaSoundPatch(city)
@@ -689,8 +683,8 @@ function parceSounds(idUserEvent, vars)
 					local area = getPlayerArea(PLAYER_PED)
 					if not area then
 						local x, y, z = getCharCoordinates(PLAYER_PED)
-						print("Ошибка! Не удалось определить район игрока.")
-						print("Координаты: x = "..x..", y = "..y..", z = "..z)
+						print(u8:decode("Ошибка! Не удалось определить район игрока."))
+						print(u8:decode("Координаты: x = "..x..", y = "..y..", z = "..z))
 						return false
 					end
 					sound = getAreaSoundPatch(area)
@@ -715,8 +709,8 @@ function parceSounds(idUserEvent, vars)
 				elseif varname == 'codeone' then
 					sound = randomChoice(CODE_1_SOUNDS)
 				else
-					print("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!")
-					print("Переменной @"..varname.." нет в строке!")
+					print(u8:decode("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
+					print(u8:decode("Переменной @"..varname.." нет в строке!"))
 					return false
 				end
 
@@ -738,8 +732,8 @@ function parceSounds(idUserEvent, vars)
 					if newSound then
 						sound = newSound
 					else
-						print("Warning! В vars."..varname.." нет значения "..vars[varname]..". "..
-							"Переменная не перезаписалась.")
+						print(u8:decode("Warning! В vars."..varname.." нет значения "..vars[varname]..". "..
+							"Переменная не перезаписалась."))
 					end
 				end
 
@@ -751,8 +745,8 @@ function parceSounds(idUserEvent, vars)
 					local area = sound
 					sound = getAreaSoundPatch(area)
 					if not sound then
-						print("Ошибка в звуке '@area' (№"..i..") в user эвенте '"..CFGuser.name.."'!")
-						print("После замены на пользовательскую конструкцию, район "..area.." не был найден.")
+						print(u8:decode("Ошибка в звуке '@area' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
+						print(u8:decode("После замены на пользовательскую конструкцию, район "..area.." не был найден."))
 						return false
 					end
 				elseif varname == 'veh' then
@@ -777,11 +771,11 @@ function parceSounds(idUserEvent, vars)
 						sound = getVehSound(vars.vehid)
 
 						if not sound then
-							print("Ошибка в звуке '@veh' (№"..i..") в user эвенте '"..CFGuser.name.."'!")
+							print(u8:decode("Ошибка в звуке '@veh' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
 							if vars.vehid then
-								print("Автомобиль с id '"..tostring(vars.vehid).."' не был найден!")
+								print(u8:decode("Автомобиль с id '"..tostring(vars.vehid).."' не был найден!"))
 							elseif vars.vehname then
-								print("Автомобиль с названием '"..tostring(vars.vehname).."' не был найден!")
+								print(u8:decode("Автомобиль с названием '"..tostring(vars.vehname).."' не был найден!"))
 							end
 							return false
 						end
@@ -801,14 +795,14 @@ function parceSounds(idUserEvent, vars)
 							end
 						end
 					else
-						print("Ошибка в звуке '@area' (№"..i..") в user эвенте '"..CFGuser.name.."'!")
-						print("Переменной @vehname или @vehid нет в строке!")
+						print(u8:decode("Ошибка в звуке '@area' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
+						print(u8:decode("Переменной @vehname или @vehid нет в строке!"))
 						return false
 					end
 				else
 					if type(sound) ~= 'string' then
-						print("Ошибка в звуке '"..tostring(sound).."' (№"..i..") в user эвенте '"..CFGuser.name.."'!")
-						print("Значение переменной должна быть строка!")
+						print(u8:decode("Ошибка в звуке '"..tostring(sound).."' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
+						print(u8:decode("Значение переменной должна быть строка!"))
 						return false
 					elseif sound:find("^DISP%.") then
 						local s = sound:split('%.')
@@ -823,10 +817,10 @@ function parceSounds(idUserEvent, vars)
 						end
 
 						if not newSound then
-							print("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!")
-							print("Звук не найден! Убедитесь что вы все верно написали.")
-							print("Сравните свои ключи с ключами в переменной DISPATCH_SOUNDS в файле config.lua.")
-							print("Регистр символов имеет значение!")
+							print(u8:decode("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
+							print(u8:decode("Звук не найден! Убедитесь что вы все верно написали."))
+							print(u8:decode("Сравните свои ключи с ключами в переменной DISPATCH_SOUNDS в файле config.lua."))
+							print(u8:decode("Регистр символов имеет значение!"))
 							return false
 						end
 						sound = newSound
@@ -839,8 +833,8 @@ function parceSounds(idUserEvent, vars)
 				if varname == 'area' then
 					sound = getAreaSoundPatch(vars.area)
 					if not sound then
-						print("Ошибка в звуке №"..i.." в user эвенте '"..CFGuser.name.."'!")
-						print("@area не найдено.")
+						print(u8:decode("Ошибка в звуке №"..i.." в user эвенте '"..CFGuser.name.."'!"))
+						print(u8:decode("@area не найдено."))
 						return false
 					end
 
@@ -851,11 +845,11 @@ function parceSounds(idUserEvent, vars)
 						vars.vehid = vars.vehid or vars.vehname and getCarModelByName(vars.vehname)
 						sound = getVehSound(vars.vehid)
 						if not sound then
-							print("Ошибка в звуке '@veh' (№"..i..") в user эвенте '"..CFGuser.name.."'!")
+							print(u8:decode("Ошибка в звуке '@veh' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
 							if vars.vehid then
-								print("Автомобиль с id '"..tostring(vars.vehid).."' не был найден!")
+								print(u8:decode("Автомобиль с id '"..tostring(vars.vehid).."' не был найден!"))
 							elseif vars.vehname then
-								print("Автомобиль с названием '"..tostring(vars.vehname).."' не был найден!")
+								print(u8:decode("Автомобиль с названием '"..tostring(vars.vehname).."' не был найден!"))
 							end
 							return false
 						end
@@ -875,9 +869,9 @@ function parceSounds(idUserEvent, vars)
 							end
 						end
 					else
-						print("Ошибка в звуке №"..i.." в user эвенте '"..CFGuser.name.."'!")
-						print("Невозможно получить звук автомобиля, так как ...")
-						print("... в паттерне не указана ни @vehname, ни @vehid!")
+						print(u8:decode("Ошибка в звуке №"..i.." в user эвенте '"..CFGuser.name.."'!"))
+						print(u8:decode("Невозможно получить звук автомобиля, так как ..."))
+						print(u8:decode("... в паттерне не указана ни @vehname, ни @vehid!"))
 						return false
 					end
 				else
@@ -889,7 +883,7 @@ function parceSounds(idUserEvent, vars)
 			sound = sound:gsub("/", "\\")
 			sound = PATH.audio..sound
 		else
-			print("Неизвестный звук "..sound.." (№"..i..") в user эвенте '"..CFGuser.name.."'!")
+			print(u8:decode("Неизвестный звук "..sound.." (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
 			return false
 		end
 
@@ -1058,7 +1052,7 @@ function getMarkerArea(markerId)
 		end
 	end
 	if not markerPos then
-		print("Не найдена позиция маркера с id "..markerId..'!')
+		print(u8:decode("Не найдена позиция маркера с id "..markerId..'!'))
 		return false 
 	end
 
@@ -1189,7 +1183,7 @@ function getAreaSoundPatch(area)
 		if newArea then
 			return getAreaSoundPatch(newArea)
 		else
-			print("Района \""..area.."\" не найдено.")
+			print(u8:decode("Района \""..area.."\" не найдено."))
 			return false
 		end
 	end
@@ -1482,7 +1476,7 @@ function mainMenu()
 	)
 	sampShowDialog(
 		20000,
-		u8:decode("Настройки - Police Dispatch").." | "..CFG.name,
+		u8:decode("Настройки - Police Dispatch | ")..CFG.name,
 		u8:decode(text),
 		BTN1,
 		BTN2,
@@ -1517,7 +1511,7 @@ function checkDialogsRespond()
 			sampShowDialog(20001, u8:decode("Громкость {ABCDEF}/find:"), u8:decode("Если вы хотите отключить озвучку, введите 0."), 
 				BTN1, BTN2, 1)
 		elseif list == 5 then
-			sampShowDialog(20001, u8:decode("Громкость {8D8DFF}/r:"), u8:decode("Если вы хотите отключить озвучку, введите 0."), 
+			sampShowDialog(20001, u8:decode("Громкость {8D8DFF}/r:"), u8:decode("Если вы хотите отключить озвучку, введите 0."),
 				BTN1, BTN2, 1)
 		elseif list == 6 then
 			sampShowDialog(20001, u8:decode("Громкость {66DDAA}user-эвентов:"), u8:decode("Если вы хотите отключить озвучку, введите 0."), 
