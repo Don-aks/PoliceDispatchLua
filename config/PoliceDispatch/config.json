@@ -784,7 +784,7 @@
 		// На эвольве нет ни /find, ни вызовов 911
 		// Поэтому только рация.
 		"radio": {
-			"pattern": "^[^%(]+ %a+_%a+%: @text",
+			"pattern": "^[^%(]+ %a+_%a+%[%d-%]: @text",
 			"useRegexInPattern": true,
 			"color": "0x8D8DFF00",
 
