@@ -52,6 +52,12 @@ function main()
 	while not isSampAvailable() do wait(100) end
 	while sampGetCurrentServerName() == 'SA-MP' do wait(100) end
 
+	-- Хранит в себе все файлы
+	CODE_0_SOUNDS = scandir(PATH.audio..PATH.code0.."*.mp3")
+	CODE_1_SOUNDS = scandir(PATH.audio..PATH.code1.."*.mp3")
+	GANG_ACTIVITY_SOUNDS = scandir(PATH.audio..PATH.gangActivity.."*.mp3")
+	AREA_AND_CODE_SOUNDS = scandir(PATH.audio..PATH.areaAndCode.."*.wav")
+
 	-- Подгрузка .json
 	local f = io.open(PATH.config.."config.json", 'r')
 	-- удаляем комментарии
@@ -937,10 +943,18 @@ function playDispatch(event, vars)
 		}, 'findVolume', true)
 
 	elseif event == 'code1' then
-		lua_thread.create(playSounds, randomChoice(CODE_1_SOUNDS), 'radioVolume')
+		lua_thread.create(
+			playSounds, 
+			PATH.audio..PATH.code1..randomChoice(CODE_1_SOUNDS), 
+			'radioVolume'
+		)
 
 	elseif event == 'code0' then
-		lua_thread.create(playSounds, randomChoice(CODE_0_SOUNDS), 'radioVolume')
+		lua_thread.create(
+			playSounds,
+			PATH.audio..PATH.code0..randomChoice(CODE_0_SOUNDS), 
+			'radioVolume'
+		)
 	end
 end
 
@@ -1676,12 +1690,6 @@ DISPATCH_SOUNDS = {
 		attempt=PATH.audio.."ten_codes\\attempt.wav"
 	}
 }
-
--- Хранит в себе все файлы
-CODE_0_SOUNDS = scandir(PATH.audio..PATH.code0.."*.mp3")
-CODE_1_SOUNDS = scandir(PATH.audio..PATH.code1.."*.mp3")
-GANG_ACTIVITY_SOUNDS = scandir(PATH.audio..PATH.gangActivity.."*.mp3")
-AREA_AND_CODE_SOUNDS = scandir(PATH.audio..PATH.areaAndCode.."*.wav")
 
 -- Ключ - ИмяФайлаСЦветом.wav. 
 -- Если же префикс Light или Dark, то воспроизводится два звука.
