@@ -196,7 +196,7 @@ end
 
 -- HANDLER EVENTS --
 function handleEvent(str, color)
-	local ev, pattern, markerId, idUserEvent = getEventInfo(str, color)
+	local ev, pattern, idUserEvent, markerId = getEventInfo(str, color)
 	if not ev then
 		-- очищаем, потому что инфа должна быть на следующей строке
 		if #VARS > 0 then
@@ -407,19 +407,16 @@ end
 -- GET EVENT --
 
 function getEventInfo(str, color)
-	local ev, patt, idUserEvent = getEventAndPattern(str, color)
-	if ev == false then return end
+	--[[returns eventType, chatMessagePattern, idUserEvent (if it's
+	user event) and markerId (if exist)]]
+
 	local markerId = CFG[ev].markerId
 
-	return ev, patt, markerId, idUserEvent
-end
-
-function getEventAndPattern(str, color)
 	-- По умолчанию user эвенты проверяются самыми первыми, если не задано иначе.
 	if not CFG.userNotPriority then
 		local userPattern, idUserEvent = getUserPatternAndId(str, color)
 		if userPattern then
-			return 'user', userPattern, idUserEvent
+			return 'user', userPattern, idUserEvent, markerId
 		end
 	end
 
@@ -465,7 +462,7 @@ function getEventAndPattern(str, color)
 					end
 					local pattWithoutVars = getPatternWithoutVars(patt)
 					if str:find(pattWithoutVars) then
-						return key, patt
+						return key, patt, nil, markerId
 					end
 				end
 			end
@@ -475,7 +472,7 @@ function getEventAndPattern(str, color)
 	if CFG.userNotPriority then
 		local userPattern, idUserEvent = getUserPatternAndId(str, color)
 		if userPattern then
-			return 'user', userPattern, idUserEvent
+			return 'user', userPattern, idUserEvent, markerId
 		end
 	end
 
