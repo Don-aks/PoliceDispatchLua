@@ -298,13 +298,13 @@ function handleEvent(str, color)
 							sounds[i] = getAreaSoundPatch(getPlayerCity(PLAYER_PED))
 						elseif sound == "@areaplayer" then
 							sounds[i] = getAreaSoundPatch(getPlayerArea(PLAYER_PED))
-						elseif varname == "@randomtencode" then
+						elseif sound == "@randomtencode" then
 							sounds[i] = randomChoice(DISPATCH_SOUNDS.codes)
-						elseif varname == "@randomtencodewithin" then
+						elseif sound == "@randomtencodewithin" then
 							sounds[i] = randomChoice(DISPATCH_SOUNDS.codesWithIn)
-						elseif varname == "@randomarea" then
+						elseif sound == "@randomarea" then
 							sounds[i] = getAreaSoundPatch(randomChoice(AREAS)[1])
-						elseif varname == "@randomareaincityplayer" then
+						elseif sound == "@randomareaincityplayer" then
 							local city = getPlayerCity(PLAYER_PED)
 							if not city or city == "San Andreas" then
 								-- В принципе рандомный район
@@ -314,9 +314,9 @@ function handleEvent(str, color)
 									randomChoice(LIST_AREAS_IN_REGIONS[city])
 								)
 							end
-						elseif varname == "@codezero" then
+						elseif sound == "@codezero" then
 							sound = randomChoice(CODE_0_SOUNDS)
-						elseif varname == "@codeone" then
+						elseif sound == "@codeone" then
 							sound = randomChoice(CODE_1_SOUNDS)
 						else
 							sounds[i] = PATH.audio..sound:gsub('/', '\\')
