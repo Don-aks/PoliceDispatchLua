@@ -210,6 +210,24 @@ function handleEvent(str, color)
 	-- Чекаем остался ли глобальный VARS от предыдущего вызова.
 	vars = concatWithGlobalVars(vars, ev)
 
+	local event = ev == "user" and CFG.user[idUserEvent] or CFG[ev]
+	-- Заменяем значение переменной на указанное в vars, если требуется
+	if event.vars then
+		for _, varname in pairs(vars) do
+			if event.vars[varname] then
+				local newVariableValue = event.vars[varname] [vars[varname]]
+				if newVariableValue then
+					vars[varname] = newVariableValue
+				else
+					print(u8:decode(
+						"Warning! В vars."..varname.." нет значения "..vars[varname]..
+						". Переменная не перезаписалась."
+					))
+				end
+			end
+		end
+	end
+
 	if ev == 'find' then
 		if INI.INI.findVolume == 0 then return false, 'volume' end
 		-- Если нет обязательного параметра
@@ -587,11 +605,47 @@ function parceSounds(idUserEvent, vars)
 				return false
 			end
 
-			-- Если переменной нет в строке.
-			if 	(not vars[varname]) and 
-				(not (CFGuser.vars and CFGuser.vars[varname])) and
-				(varname ~= 'veh' or not (vars.vehname or vars.vehid))
-			then
+			if varname == 'veh' and (vars.vehname or vars.vehid) then
+				vars.vehid = vars.vehid or vars.vehname and getCarModelByName(vars.vehname)
+				sound = getVehSound(vars.vehid)
+
+				if not sound then
+					print(u8:decode("Ошибка в звуке '@veh' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
+					if vars.vehid then
+						print(u8:decode("Автомобиль с id '"..tostring(vars.vehid).."' не был найден!"))
+					elseif vars.vehname then
+						print(u8:decode("Автомобиль с названием '"..tostring(vars.vehname).."' не был найден!"))
+					end
+
+					return false
+				end
+
+				if vars.vehname and vars.vehname == CFGuser.vehOnFoot then
+					sound = DISPATCH_SOUNDS.suspect.onFoot
+				elseif vars.id or vars.nick then
+					-- Берем инфу из игрока, если тот в стриме.
+					vars.id = tonumber(vars.id) or sampGetPlayerIdByNickname(vars.nick)
+					res, vars.vehid, vars.vehcolor = getModelIdAndColorByPlayerId(vars.id)
+					if res then
+						for _, soundColor in ipairs(getCarColorSound(vars.vehcolor)) do
+							table.insert(arrSounds, soundColor)
+						end
+
+						sound = getVehSound(vars.vehid)
+					end
+				end
+			elseif varname == 'area' and vars.area then
+				sound = getAreaSoundPatch(vars.area)
+				if not sound then
+					print(u8:decode("Ошибка в звуке '@area' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
+					print(u8:decode("Район "..vars.area.." не найден."))
+					return false
+				end
+			elseif vars[varname] then
+				-- Если переменная в чате.
+				sound = vars[varname]
+			else
+				-- Если переменной нет в чате.
 				if varname == 'area' and CFGuser.markerId then
 					local markerId = CFGuser.markerId
 					local area = getMarkerArea(markerId)
@@ -641,25 +695,12 @@ function parceSounds(idUserEvent, vars)
 								table.insert(arrSounds, soundColor)
 							end
 							sound = getVehSound(vars.vehid)
+						elseif res == false then
+							table.insert(arrSounds, DISPATCH_SOUNDS.suspect.suspect1)
+							sound = DISPATCH_SOUNDS.suspect.onFoot
 						else
-							-- ХАХАХАХХАХАХАХАХАХХА
-							-- Ладно.
-							local playerInStream, playerHandle
-
-							local _, playerId = sampGetPlayerIdByCharHandle(PLAYER_PED)
-							if id ~= playerId then
-								playerInStream, playerHandle = sampGetCharHandleBySampPlayerId(vars.id)
-							else
-								playerInStream, playerHandle = true, PLAYER_PED
-							end
-
-							if not playerInStream then
-								print(u8:decode("Warning @suspectveh: Игрок вне зоне стрима в user эвенте '"..CFGuser.name.."'!"))
-								sound = nil
-							else
-								table.insert(arrSounds, DISPATCH_SOUNDS.suspect.suspect1)
-								sound = DISPATCH_SOUNDS.suspect.onFoot
-							end
+							print(u8:decode("Warning @suspectveh: Игрок вне зоне стрима в user эвенте '"..CFGuser.name.."'!"))
+							sound = nil
 						end
 					else
 						print(u8:decode("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
@@ -709,172 +750,8 @@ function parceSounds(idUserEvent, vars)
 					print(u8:decode("Переменной @"..varname.." нет в строке!"))
 					return false
 				end
-
-			-- Есть конструкция с пользовательскими заменами переменных
-			elseif
-				CFGuser.vars and 
-				(
-					(CFGuser.vars[varname]) or (
-						varname == 'veh' and
-						-- для veh другие переменные
-						(CFGuser.vars['vehname'] or CFGuser.vars['vehid'])
-					)
-				)
-			then
-				if varname ~= 'veh' then
-					-- Заменить, если нужно будет не учитывать регистр
-					-- в значениях пользовательских переменных.
-					newSound = CFGuser.vars[varname] [vars[varname]]
-					if newSound then
-						sound = newSound
-					else
-						print(u8:decode("Warning! В vars."..varname.." нет значения "..vars[varname]..". "..
-							"Переменная не перезаписалась."))
-					end
-				end
-
-				-- Обработка значения переменных как звука.
-				-- По сути та же функция как в else ниже.
-				-- Нужно упростить.
-				-- А также протестить. Загадка от Жака Фреско.
-				if varname == 'area' then
-					local area = sound
-					sound = getAreaSoundPatch(area)
-					if not sound then
-						print(u8:decode("Ошибка в звуке '@area' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
-						print(u8:decode("После замены на пользовательскую конструкцию, район "..area.." не был найден."))
-						return false
-					end
-				elseif varname == 'veh' then
-					if vars['vehname'] or vars['vehid'] then
-						-- Хм... Как же упростить.
-						-- Загадка от жака Фреско.
-						-- А не похуй ли?
-						if CFGuser.vars['vehname'] then
-							local newSound = CFGuser.vars.vehname[vars.vehname]
-							if newSound then
-								vars.vehname = newSound
-							end
-						end
-						if CFGuser.vars['vehid'] then
-							local newSound = CFGuser.vars.vehid[vars.vehid]
-							if newSound then
-								vars.vehid = newSound
-							end
-						end
-
-						vars.vehid = vars.vehid or vars.vehname and getCarModelByName(vars.vehname)
-						sound = getVehSound(vars.vehid)
-
-						if not sound then
-							print(u8:decode("Ошибка в звуке '@veh' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
-							if vars.vehid then
-								print(u8:decode("Автомобиль с id '"..tostring(vars.vehid).."' не был найден!"))
-							elseif vars.vehname then
-								print(u8:decode("Автомобиль с названием '"..tostring(vars.vehname).."' не был найден!"))
-							end
-							return false
-						end
-
-						if vars.vehname and vars.vehname == CFGuser.vehOnFoot then
-							sound = DISPATCH_SOUNDS.suspect.onFoot
-						elseif vars.id or vars.nick then
-							-- Берем инфу из игрока, если тот в стриме.
-							vars.id = tonumber(vars.id) or sampGetPlayerIdByNickname(vars.nick)
-							res, vars.vehid, vars.vehcolor = getModelIdAndColorByPlayerId(vars.id)
-							if res then
-								for _, soundColor in ipairs(getCarColorSound(vars.vehcolor)) do
-									table.insert(arrSounds, soundColor)
-								end
-
-								sound = getVehSound(vars.vehid)
-							end
-						end
-					else
-						print(u8:decode("Ошибка в звуке '@area' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
-						print(u8:decode("Переменной @vehname или @vehid нет в строке!"))
-						return false
-					end
-				else
-					if type(sound) ~= 'string' then
-						print(u8:decode("Ошибка в звуке '"..tostring(sound).."' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
-						print(u8:decode("Значение переменной должна быть строка!"))
-						return false
-					elseif sound:find("^DISP%.") then
-						local s = sound:split('%.')
-						local newSound
-						if #s == 3 then
-							if s[2] == 'codes' or s[2] == 'codesWithIn' then
-								s[3] = tonumber(s[3])
-							end
-							newSound = DISPATCH_SOUNDS[s[2]][s[3]]
-						else
-							newSound = DISPATCH_SOUNDS[s[2]]
-						end
-
-						if not newSound then
-							print(u8:decode("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
-							print(u8:decode("Звук не найден! Убедитесь что вы все верно написали."))
-							print(u8:decode("Сравните свои ключи с ключами в переменной DISPATCH_SOUNDS в файле config.lua."))
-							print(u8:decode("Регистр символов имеет значение!"))
-							return false
-						end
-						sound = newSound
-					else
-						sound = PATH.audio..newSound
-					end
-				end
-
-			else
-				if varname == 'area' then
-					sound = getAreaSoundPatch(vars.area)
-					if not sound then
-						print(u8:decode("Ошибка в звуке №"..i.." в user эвенте '"..CFGuser.name.."'!"))
-						print(u8:decode("@area не найдено."))
-						return false
-					end
-
-				elseif varname == 'veh' then
-					-- Почему не берется инфа из возможного игрока
-					-- в зоне стрима
-					if vars['vehname'] or vars['vehid'] then
-						vars.vehid = vars.vehid or vars.vehname and getCarModelByName(vars.vehname)
-						sound = getVehSound(vars.vehid)
-						if not sound then
-							print(u8:decode("Ошибка в звуке '@veh' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
-							if vars.vehid then
-								print(u8:decode("Автомобиль с id '"..tostring(vars.vehid).."' не был найден!"))
-							elseif vars.vehname then
-								print(u8:decode("Автомобиль с названием '"..tostring(vars.vehname).."' не был найден!"))
-							end
-							return false
-						end
-
-						if CFGuser.veh and vars.vehname == CFGuser.vehOnFoot then
-							sound = DISPATCH_SOUNDS.suspect.onFoot
-						elseif vars.id or vars.nick then
-							-- Берем инфу из игрока, если тот в стриме.
-							vars.id = tonumber(vars.id) or sampGetPlayerIdByNickname(vars.nick)
-							res, vars.vehid, vars.vehcolor = getModelIdAndColorByPlayerId(vars.id)
-
-							if res then
-								for _, soundColor in ipairs(getCarColorSound(vars.vehcolor)) do
-									table.insert(arrSounds, soundColor)
-								end
-								sound = getVehSound(vars.vehid)
-							end
-						end
-					else
-						print(u8:decode("Ошибка в звуке №"..i.." в user эвенте '"..CFGuser.name.."'!"))
-						print(u8:decode("Невозможно получить звук автомобиля, так как ..."))
-						print(u8:decode("... в паттерне не указана ни @vehname, ни @vehid!"))
-						return false
-					end
-				else
-					sound = vars[varname]
-				end
 			end
-		-- относительный путь
+		-- Путь к звуку
 		elseif sound:find("%.") then
 			sound = sound:gsub("/", "\\")
 			sound = PATH.audio..sound
@@ -1034,8 +911,10 @@ function getModelIdAndColorByPlayerId(id)
 		end
 
 		return true, vehId, vehColor
-	else
+	elseif playerInStream then
 		return false
+	else
+		return nil
 	end
 end
 
