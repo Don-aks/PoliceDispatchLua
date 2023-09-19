@@ -650,14 +650,14 @@ function parceSounds(idUserEvent, vars)
 					local markerId = CFGuser.markerId
 					local area = getMarkerArea(markerId)
 					if not area then
-						print(u8:decode("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
+						print(u8:decode("Ошибка в звуке '@area' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
 						print(u8:decode("Иконка на карте с id "..markerId.." в эвенте user не найдена."))
 						return false
 					end
 
 					local newSound = getAreaSoundPatch(area)
 					if not newSound then
-						print(u8:decode("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
+						print(u8:decode("Ошибка в звуке '@area' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
 						print(u8:decode("@area не найдено."))
 						return false
 					end
@@ -673,14 +673,15 @@ function parceSounds(idUserEvent, vars)
 							end
 							sound = getVehSound(vars.vehid)
 						else
-							print(u8:decode("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
+							print(u8:decode("Ошибка в звуке '@veh' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
 							print(u8:decode("Переменной @vehname или @vehid нет в строке!"))
 							print(u8:decode("И игрок, указанный в переменных @id или @nick вне зоне стрима!"))
 							return false
 						end
 					else
-						print(u8:decode("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
-						print(u8:decode("Переменной @vehname или @vehid нет в строке!"))
+						print(u8:decode("Ошибка в звуке '@veh' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
+						print(u8:decode("Переменной @vehname, @vehid нет в строке!"))
+						print(u8:decode("Также не указан игрок с помощью переменных @id или @nick!"))
 						return false
 					end
 				elseif varname == 'suspectveh' then
@@ -703,7 +704,7 @@ function parceSounds(idUserEvent, vars)
 							sound = nil
 						end
 					else
-						print(u8:decode("Ошибка в звуке '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
+						print(u8:decode("Ошибка в звуке '@suspectveh' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
 						print(u8:decode("Переменной @vehname или @vehid нет в строке!"))
 						return false
 					end
@@ -756,7 +757,7 @@ function parceSounds(idUserEvent, vars)
 			sound = sound:gsub("/", "\\")
 			sound = PATH.audio..sound
 		else
-			print(u8:decode("Неизвестный звук "..sound.." (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
+			print(u8:decode("Неизвестный звук '"..sound.."' (№"..i..") в user эвенте '"..CFGuser.name.."'!"))
 			return false
 		end
 
