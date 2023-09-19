@@ -196,7 +196,7 @@ end
 
 -- HANDLER EVENTS --
 function handleEvent(str, color)
-	local ev, pattern, idUserEvent, markerId = getEventInfo(str, color)
+	local ev, pattern, idUserEvent = getEventInfo(str, color)
 	if not ev then
 		-- очищаем, потому что инфа должна быть на следующей строке
 		if #VARS > 0 then
@@ -205,6 +205,7 @@ function handleEvent(str, color)
 		return false, 'not ev'
 	end
 
+	local markerId = CFG[ev].markerId
 	local vars = getVariablesFromMessage(str, pattern)
 	-- Чекаем остался ли глобальный VARS от предыдущего вызова.
 	vars = concatWithGlobalVars(vars, ev)
@@ -407,10 +408,8 @@ end
 -- GET EVENT --
 
 function getEventInfo(str, color)
-	--[[returns eventType, chatMessagePattern, idUserEvent (if it's
-	user event) and markerId (if exist)]]
-
-	local markerId = CFG[ev].markerId
+	--[[returns eventType, chatMessagePattern and idUserEvent (if it's
+	user event)]]
 
 	-- По умолчанию user эвенты проверяются самыми первыми, если не задано иначе.
 	if not CFG.userNotPriority then
