@@ -475,7 +475,7 @@ function getEventInfo(str, color)
 			if isColor then
 				for _, patt in ipairs(patterns) do
 					if not CFG[key].useRegexInPattern then
-						patt = '^'..esc(patt)
+						patt = esc(patt)
 					end
 					local pattWithoutVars = getPatternWithoutVars(patt)
 					if str:find(pattWithoutVars) then
@@ -534,7 +534,7 @@ function getUserPatternAndId(str, color)
 			if isColor then
 				for _, patt in ipairs(patterns) do
 					if not ev.useRegexInPattern then
-						patt = '^'..esc(patt)
+						patt = esc(patt)
 					end
 
 					local pattWithoutVars = getPatternWithoutVars(patt)
